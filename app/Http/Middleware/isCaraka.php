@@ -16,7 +16,7 @@ class isCaraka
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->role === 'Caraka') {
+        if (Auth::user() && Auth::user()->role === 'caraka') {
             return $next($request);
         }
         return redirect('/login')->withErrors(['access' => 'Access Denied']);

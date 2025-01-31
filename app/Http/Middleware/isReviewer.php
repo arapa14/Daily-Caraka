@@ -16,7 +16,7 @@ class isReviewer
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::user() && Auth::user()->role === 'Reviewer'){
+        if (Auth::user() && Auth::user()->role === 'reviewer'){
             return $next($request);
         }
         return redirect('/login')->withErrors(['access' => 'Access Denied']);
