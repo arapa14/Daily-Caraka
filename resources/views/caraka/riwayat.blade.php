@@ -11,7 +11,7 @@
     <style>
         /* Styling untuk modal */
         #imageModal {
-            display: none;
+            visibility: hidden;
             position: fixed;
             top: 0;
             left: 0;
@@ -144,8 +144,9 @@
                                 </span>
                             </td>
                             <td class="p-3 flex justify-center gap-2">
-                                 <!-- Button untuk melihat gambar -->
-                                 <button class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-md transition" onclick="openModal('{{ asset('storage/' . $laporan->image) }}')">
+                                <!-- Button untuk melihat gambar -->
+                                <button class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-md transition"
+                                    onclick="openModal('{{ asset('storage/' . $laporan->image) }}')">
                                     <i class="fas fa-eye"></i>
                                 </button>
 
@@ -195,23 +196,28 @@
     <script>
         // Fungsi untuk membuka modal dan menampilkan gambar
         function openModal(imagePath) {
+            // console.log("Image path:", imagePath); // Debugging
+            // if (!imagePath) return;
+
             let modal = document.getElementById('imageModal');
             let modalImage = document.getElementById('modalImage');
 
             modalImage.src = imagePath;
-            modal.style.display = "flex";
+            modal.style.visibility = "visible";
         }
 
         // Menutup modal saat klik tombol "X"
-        document.getElementById('closeModal').addEventListener('click', function () {
-            document.getElementById('imageModal').style.display = "none";
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('imageModal').style.visibility = 'hidden';
         });
 
+
         // Menutup modal saat klik di luar gambar
-        window.onclick = function (event) {
+        window.onclick = function(event) {
+
             let modal = document.getElementById('imageModal');
             if (event.target === modal) {
-                modal.style.display = "none";
+                modal.style.visibility = "hidden";
             }
         }
     </script>
