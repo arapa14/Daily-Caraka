@@ -11,17 +11,17 @@
 
 <body>
     {{-- header --}}
-    <div class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
+    <div class="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row justify-between items-center">
         <!-- Nama Pengguna -->
-        <h1 class="text-xl font-bold text-blue-600">Welcome {{ $user->name }}</h1>
+        <h1 class="text-xl font-bold text-blue-600 mb-2 sm:mb-0 sm:text-lg">Welcome {{ $user->name }}</h1>
 
         <!-- Jam (Real-time) -->
-        <span id="realTimeClock" class="text-gray-600">Memuat Waktu...</span>
+        <span id="realTimeClock" class="text-gray-600 mb-2 sm:mb-0 sm:text-md">Memuat Waktu...</span>
 
         <!-- Tombol Logout dengan Ikon -->
-        <form action="{{ route('logout') }}" method="POST">
+        <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto">
             @csrf
-            <button type="submit" class="flex items-center text-blue-600 hover:text-blue-900 text-lg">
+            <button type="submit" class="flex items-center text-blue-600 hover:text-blue-900 text-lg w-full sm:w-auto">
                 <!-- Ikon Logout -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -34,7 +34,9 @@
 
     {{-- button --}}
     <div class="text-center mt-6">
-        <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Lihat Riwayat</button>
+        <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto">
+            Lihat Riwayat
+        </button>
     </div>
 
     <div class="mt-6 bg-white shadow-md rounded-lg p-6">
@@ -73,7 +75,6 @@
             </div>
         </form>
     </div>
-
 
     <div class="mt-6 bg-white shadow-md rounded-lg p-6 text-center">
         <p class="text-gray-500">📄 Belum Ada Laporan</p>
