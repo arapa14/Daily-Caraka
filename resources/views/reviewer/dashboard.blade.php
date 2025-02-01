@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>welcome reviewer</h1>
+    <h1>welcome {{ $user->name }}</h1>
     <form action="{{route('logout')}}" method="POST">
         @csrf
         <button type="submit">Logout</button>

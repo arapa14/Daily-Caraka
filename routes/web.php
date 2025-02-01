@@ -12,6 +12,10 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/dashboard', [DashboardController::class, "index"])->name('dashboard')->middleware('auth');
+
+// API
+Route::get('/server-time', [DashboardController::class, 'getServerTime']);
 
 // Rute untuk Admin
 Route::middleware(['auth', 'isAdmin'])->group(function () {
@@ -37,5 +41,3 @@ Route::middleware(['auth', 'isCaraka'])->group(function () {
         return view('caraka.dashboard');
     })->name('caraka.dashboard');
 });
-
-Route::get('/dashboard', [DashboardController::class, "index"])->name('dashboard')->middleware('auth');
