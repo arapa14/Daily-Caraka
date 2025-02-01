@@ -35,6 +35,9 @@ class LaporanController extends Controller
         $currentHour = Carbon::now()->hour;
 
         // Kalau bisa ini dibikin dinamis di setting agar bisa diatur admin di web
+        // Konfigurasi apakah pembatasan waktu diaktifkan
+        $enable_time_restriction = false; // Ubah ke false jika ingin menonaktifkan pembatasan error
+
         // Menentukan sesi berdasarkan waktu saat ini
         if ($currentHour >= 6 && $currentHour < 12) {
             $session = 'pagi';
@@ -43,28 +46,34 @@ class LaporanController extends Controller
         } elseif ($currentHour >= 15 && $currentHour < 17) {
             $session = 'sore';
         } else {
-            return redirect()->back()->withErrors(['error' => 'Laporan hanya dapat dikirim antara 06:00 hingga 17:00!']);
+            if ($enable_time_restriction) {
+                return redirect()->back()->withErrors(['error' => 'Laporan hanya dapat dikirim antara 06:00 hingga 17:00!']);
+            }
+            $session = 'invalid';
         }
 
-        // Cek apakah user sudah mengirim laporan untuk sesi ini hari ini
-        $laporanSesiIni = Laporan::where('user_id', $user->id)
-            ->whereDate('created_at', $today)
-            ->where('time', $session)
-            ->exists();
+        if ($enable_time_restriction) {
+            // Cek apakah user sudah mengirim laporan untuk sesi ini hari ini
+            $laporanSesiIni = Laporan::where('user_id', $user->id)
+                ->whereDate('created_at', $today)
+                ->where('time', $session)
+                ->exists();
 
-        if ($laporanSesiIni) {
-            return redirect()->back()->withErrors(['error' => "Anda sudah mengirim laporan sesi $session hari ini!"]);
+            if ($laporanSesiIni) {
+                return redirect()->back()->withErrors(['error' => "Anda sudah mengirim laporan sesi $session hari ini!"]);
+            }
+
+            // Hitung jumlah laporan hari ini
+            $jumlahLaporanHariIni = Laporan::where('user_id', $user->id)
+                ->whereDate('created_at', $today)
+                ->count();
+
+            // Batasi maksimal 3 upload per hari
+            if ($jumlahLaporanHariIni >= 3) {
+                return redirect()->back()->withErrors(['error' => 'Anda telah mencapai batas maksimal 3 laporan hari ini!']);
+            }
         }
 
-        // Hitung jumlah laporan hari ini
-        $jumlahLaporanHariIni = Laporan::where('user_id', $user->id)
-            ->whereDate('created_at', $today)
-            ->count();
-
-        // Batasi maksimal 3 upload per hari
-        if ($jumlahLaporanHariIni >= 3) {
-            return redirect()->back()->withErrors(['error' => 'Anda telah mencapai batas maksimal 3 laporan hari ini!']);
-        }
         // dd($request->all());
         //validasi input dari form
         $request->validate([
