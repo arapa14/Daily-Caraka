@@ -8,7 +8,54 @@
     <title>Document</title>
     @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
+    <style>
+        /* Styling untuk modal */
+        #imageModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalImage {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            padding: 5px 10px;
+        }
+    </style>
 </head>
 
 <body>
@@ -97,12 +144,18 @@
                                 </span>
                             </td>
                             <td class="p-3 flex justify-center gap-2">
-                                <button class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-md transition">
+                                 <!-- Button untuk melihat gambar -->
+                                 <button class="bg-blue-500 hover:bg-blue-700 text-white p-2 rounded-md transition" onclick="openModal('{{ asset('storage/' . $laporan->image) }}')">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="bg-green-500 hover:bg-green-700 text-white p-2 rounded-md transition">
-                                    <i class="fas fa-download"></i>
-                                </button>
+
+                                <!-- Button untuk mengunduh gambar -->
+                                <a href="{{ asset('storage/' . $laporan->image) }}" download>
+                                    <button
+                                        class="bg-green-500 hover:bg-green-700 text-white p-2 rounded-md transition">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </a>
                             </td>
                         </tr>
                     @endforeach
@@ -117,19 +170,51 @@
                 @if ($laporans->onFirstPage())
                     <span class="px-3 py-1 bg-gray-300 rounded-lg cursor-not-allowed">Previous</span>
                 @else
-                    <a href="{{ $laporans->previousPageUrl() }}" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Previous</a>
+                    <a href="{{ $laporans->previousPageUrl() }}"
+                        class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Previous</a>
                 @endif
-        
+
                 @if ($laporans->hasMorePages())
-                    <a href="{{ $laporans->nextPageUrl() }}" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Next</a>
+                    <a href="{{ $laporans->nextPageUrl() }}"
+                        class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Next</a>
                 @else
                     <span class="px-3 py-1 bg-gray-300 rounded-lg cursor-not-allowed">Next</span>
                 @endif
             </div>
         </div>
-
     </div>
 
+    <!-- Modal untuk melihat gambar -->
+    <div id="imageModal" class="fixed inset-0 flex justify-center items-center bg-gray-600 bg-opacity-50 hidden">
+        <div class="bg-white p-5 rounded-lg">
+            <span id="closeModal" class="absolute top-0 right-0 p-2 cursor-pointer">X</span>
+            <img id="modalImage" src="" alt="Image" class="w-full h-auto">
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk membuka modal dan menampilkan gambar
+        function openModal(imagePath) {
+            let modal = document.getElementById('imageModal');
+            let modalImage = document.getElementById('modalImage');
+
+            modalImage.src = imagePath;
+            modal.style.display = "flex";
+        }
+
+        // Menutup modal saat klik tombol "X"
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('imageModal').style.display = "none";
+        });
+
+        // Menutup modal saat klik di luar gambar
+        window.onclick = function (event) {
+            let modal = document.getElementById('imageModal');
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 
 </html>

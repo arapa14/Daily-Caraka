@@ -34,7 +34,7 @@ class LaporanController extends Controller
         $request->validate([
             'images' => 'required|file|mimes:jpg,png|max:2048',
             'description' => 'required|string|max:255',
-            'location' => 'required|string',
+            'location' => 'required|string|notin:Pilih lokasi',
             'status' => 'required|string|in:hadir,izin,sakit',
         ]);
 
