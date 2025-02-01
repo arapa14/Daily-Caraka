@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LoginController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,4 +45,12 @@ Route::middleware(['auth', 'isCaraka'])->group(function () {
 
     // Laporan
     Route::post('/submit-laporan', [LaporanController::class, 'store'])->name('laporan.store');
+
+    // Riwayat
+    Route::get('/riwayat', function() {
+        $user = Auth::user(); //ambil data user yang login
+        $laporans = \App\Models\Laporan::where('user_id', $user->id)->get();
+
+        return view('caraka.riwayat', compact('user', 'laporans'));
+    })->name('riwayat');
 });

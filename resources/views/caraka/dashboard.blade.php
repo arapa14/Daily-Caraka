@@ -34,9 +34,9 @@
 
     {{-- button --}}
     <div class="text-center mt-6">
-        <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto">
+        <a href='{{route('riwayat')}}' class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-800 w-full sm:w-auto cursor-pointer">
             Lihat Riwayat
-        </button>
+        </a>
     </div>
 
     <div class="mt-6 bg-white shadow-md rounded-lg p-6">
