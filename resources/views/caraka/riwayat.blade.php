@@ -111,14 +111,23 @@
         </div>
 
 
-        <!-- Pagination -->
         <div class="flex justify-between items-center mt-4 text-gray-600">
-            <p>Page 1 of 1</p>
+            <p>Page {{ $laporans->currentPage() }} of {{ $laporans->lastPage() }}</p>
             <div class="flex gap-2">
-                <a href="#" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Previous</a>
-                <a href="#" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Next</a>
+                @if ($laporans->onFirstPage())
+                    <span class="px-3 py-1 bg-gray-300 rounded-lg cursor-not-allowed">Previous</span>
+                @else
+                    <a href="{{ $laporans->previousPageUrl() }}" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Previous</a>
+                @endif
+        
+                @if ($laporans->hasMorePages())
+                    <a href="{{ $laporans->nextPageUrl() }}" class="px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300">Next</a>
+                @else
+                    <span class="px-3 py-1 bg-gray-300 rounded-lg cursor-not-allowed">Next</span>
+                @endif
             </div>
         </div>
+
     </div>
 
 </body>

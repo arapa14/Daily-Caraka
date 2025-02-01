@@ -49,7 +49,7 @@ Route::middleware(['auth', 'isCaraka'])->group(function () {
     // Riwayat
     Route::get('/riwayat', function() {
         $user = Auth::user(); //ambil data user yang login
-        $laporans = \App\Models\Laporan::where('user_id', $user->id)->get();
+        $laporans = \App\Models\Laporan::where('user_id', $user->id)->paginate(5);
 
         return view('caraka.riwayat', compact('user', 'laporans'));
     })->name('riwayat');
