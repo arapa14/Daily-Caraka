@@ -20,7 +20,7 @@
 
         <!-- Tombol Logout dengan Ikon -->
         <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto">
-            @csrf   
+            @csrf
             <button type="submit" class="flex items-center text-blue-600 hover:text-blue-900 text-lg w-full sm:w-auto">
                 <!-- Ikon Logout -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none" stroke="currentColor"
@@ -34,7 +34,8 @@
 
     {{-- button --}}
     <div class="text-center mt-6">
-        <a href='{{route('riwayat')}}' class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto cursor-pointer">
+        <a href='{{ route('riwayat') }}'
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto cursor-pointer">
             Lihat Riwayat
         </a>
     </div>
@@ -48,12 +49,12 @@
                 @endforeach
             </div>
         @endif
-        @if(session('success'))
+        @if (session('success'))
             <div class="p-3 mt-3 text-sm text-green-600 bg-green-100 rounded">
-                {{session('success')}}
+                {{ session('success') }}
             </div>
         @endif
-        <form action="{{route('laporan.store')}}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('laporan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             {{-- file input --}}
             <div class="mt-4">
@@ -68,7 +69,7 @@
                 <select name="location" class="w-full p-2 border rounded-md">
                     <option>Pilih lokasi</option>
                     @foreach ($locations as $location)
-                        <option value="{{$location->location}}">{{$location->location}}</option>
+                        <option value="{{ $location->location }}">{{ $location->location }}</option>
                     @endforeach
                 </select>
             </div>
@@ -89,47 +90,75 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 ">
-        @foreach ($laporanHariIni as $laporan)
-            <div class="bg-white shadow-lg rounded-xl overflow-hidden border p-4">
-                <div class="w-full max-h-60 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">
-                    <img src="{{ asset('storage/' . $laporan->image) }}" alt="Laporan Image" class="w-full h-auto object-contain aspect-[4/3]">
-                </div>
-                
-                <div class="p-4">
-                    <h3 class="font-semibold text-blue-600 text-lg mb-1">{{ ucfirst($laporan->name) }}</h3>
-                    <p class="text-gray-500 text-sm">
-                        <span class="text-blue-500 font-medium">Laporan :</span>
-                        <span class="text-blue-500 font-medium bg-blue-100 px-2 py-1 rounded-md">{{ $laporan->time }}</span>
-                    </p>
-                    <p class="text-gray-700 mt-2">{{ $laporan->description }}</p>
-                </div>
-                
-                <div class="flex justify-between items-center px-4 py-3 text-sm">
-                    <span class="text-gray-400 font-medium">{{ $laporan->location ?? 'Tidak Diketahui' }}</span>
-                    <div class="flex space-x-2">
-                        <span class="px-3 py-1 font-semibold rounded-lg 
-                            @if($laporan->presence == 'hadir') bg-green-100 text-green-600 
-                            @elseif($laporan->presence == 'sakit') bg-yellow-100 text-yellow-700
-                            @elseif($laporan->presence == 'izin') bg-blue-100 text-blue-700
-                            @else bg-red-100 text-red-700 @endif">
-                            {{ ucfirst($laporan->presence) }}
-                        </span>
-                        <span class="px-3 py-1 font-semibold rounded-lg
-                            @if($laporan->status == 'approved') bg-green-100 text-green-600 
-                            @elseif($laporan->status == 'rejected') bg-red-100 text-red-600
-                            @else bg-yellow-100 text-yellow-600 @endif">
-                            {{ ucfirst($laporan->status) }}
-                        </span>
-                    </div>
-                </div>
+    <div class="mt-6">
+        @if ($laporanHariIni->isEmpty())
+            <div class="flex flex-col items-center justify-center p-6 bg-white shadow-md rounded-lg">
+                <!-- Ilustrasi Ikon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-400" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                </svg>
+
+                <h3 class="mt-4 text-xl font-semibold text-gray-700">Belum Ada Laporan Hari Ini</h3>
+                <p class="text-gray-500 text-sm text-center max-w-sm mt-1">Saat ini belum ada laporan yang masuk.
+                    Silakan submit laporan pertama Anda untuk hari ini.</p>
             </div>
-        @endforeach
+        @else
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach ($laporanHariIni as $laporan)
+                    <div class="bg-white shadow-lg rounded-xl overflow-hidden border p-4">
+                        <div
+                            class="w-full max-h-60 flex items-center justify-center bg-gray-200 rounded-md overflow-hidden">
+                            <img src="{{ asset('storage/' . $laporan->image) }}" alt="Laporan Image"
+                                class="w-full h-auto object-contain aspect-[4/3]">
+                        </div>
+
+                        <div class="p-4">
+                            <h3 class="font-semibold text-blue-600 text-lg mb-1">{{ ucfirst($laporan->name) }}</h3>
+                            <p class="text-gray-500 text-sm">
+                                <span class="text-blue-500 font-medium">Laporan :</span>
+                                <span
+                                    class="text-blue-500 font-medium bg-blue-100 px-2 py-1 rounded-md">{{ $laporan->time }}</span>
+                            </p>
+                            <p class="text-gray-700 mt-2">{{ $laporan->description }}</p>
+                        </div>
+
+                        <div class="flex justify-between items-center px-4 py-3 text-sm">
+                            <span
+                                class="text-gray-400 font-medium">{{ $laporan->location ?? 'Tidak Diketahui' }}</span>
+                            <div class="flex space-x-2">
+                                <span
+                                    class="px-3 py-1 font-semibold rounded-lg 
+                                    @if ($laporan->presence == 'hadir') bg-green-100 text-green-600 
+                                    @elseif($laporan->presence == 'sakit') bg-yellow-100 text-yellow-700
+                                    @elseif($laporan->presence == 'izin') bg-blue-100 text-blue-700
+                                    @else bg-red-100 text-red-700 @endif">
+                                    {{ ucfirst($laporan->presence) }}
+                                </span>
+                                <span
+                                    class="px-3 py-1 font-semibold rounded-lg
+                                    @if ($laporan->status == 'approved') bg-green-100 text-green-600 
+                                    @elseif($laporan->status == 'rejected') bg-red-100 text-red-600
+                                    @else bg-yellow-100 text-yellow-600 @endif">
+                                    {{ ucfirst($laporan->status) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
-    
-    
-    
-    
+
+
+
+
+
 
     <script>
         function updateClock() {
@@ -140,40 +169,43 @@
                     const hours = serverTime.getHours();
                     const minutes = serverTime.getMinutes();
                     const formattedMinutes = minutes.toString().padStart(2, '0');
-                    
+
                     // Konversi jam ke menit total untuk perbandingan waktu yang akurat
                     const totalMinutes = hours * 60 + minutes;
-                    
+
                     let session = "Invalid"; // Default
-                    if (totalMinutes >= 360 && totalMinutes < 720) {  // 6:00 - 12:00
+                    if (totalMinutes >= 360 && totalMinutes < 720) { // 6:00 - 12:00
                         session = "Pagi";
                     } else if (totalMinutes >= 720 && totalMinutes < 900) { // 12:00 - 15:00
                         session = "Siang";
                     } else if (totalMinutes >= 900 && totalMinutes < 1020) { // 15:00 - 17:00
                         session = "Sore";
                     }
-    
+
                     const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-                    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    
+                    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus",
+                        "September", "Oktober", "November", "Desember"
+                    ];
+
                     const dayName = days[serverTime.getDay()];
                     const day = serverTime.getDate();
                     const month = months[serverTime.getMonth()];
                     const year = serverTime.getFullYear();
-    
-                    document.getElementById('realTimeClock').innerText = `${session}, ${dayName} ${day} ${month} ${year} - ${hours.toString().padStart(2, '0')}:${formattedMinutes}`;
+
+                    document.getElementById('realTimeClock').innerText =
+                        `${session}, ${dayName} ${day} ${month} ${year} - ${hours.toString().padStart(2, '0')}:${formattedMinutes}`;
                 })
                 .catch(error => console.error("Gagal mengambil waktu server:", error));
         }
-    
+
         // Panggil saat halaman dimuat
         updateClock();
-    
+
         // Update setiap 1 menit (60000 ms) untuk mengurangi beban server
         setInterval(updateClock, 30000);
     </script>
-    
-    
+
+
 </body>
 
 </html>
