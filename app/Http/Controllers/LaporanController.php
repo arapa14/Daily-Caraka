@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Laporan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanController extends Controller
@@ -29,6 +30,18 @@ class LaporanController extends Controller
      */
     public function store(Request $request)
     {
+        $user = auth()->user();
+        $today = Carbon::today();
+
+        // Hitung jumlah laporan hari ini
+        $jumlahLaporanHariIni = Laporan::where('user_id', $user->id)
+            ->whereDate('created_at', $today)
+            ->count();
+
+        // Batasi maksimal 3 upload per hari
+        if ($jumlahLaporanHariIni >= 3) {
+            return redirect()->back()->withErrors(['error' => 'Anda telah mencapai batas maksimal 3 laporan hari ini!']);
+        }
         // dd($request->all());
         //validasi input dari form
         $request->validate([
@@ -39,21 +52,21 @@ class LaporanController extends Controller
         ]);
 
         try {
-           // menyimpan laporan ke database
-           $laporan = new Laporan();
-           $laporan->user_id = Auth::id(); //Mengambil IS user yang sedang login
-           $laporan->name = Auth::user()->name;
-           $laporan->description = $request['description'];
-           $laporan->location = $request['location'];
-           $laporan->date = now();
-           $laporan->time = 'pagi'; //nanti ini dibikin kondisi
-           $laporan->status = 'pending';
-           $laporan->presence = $request['status'];
+            // menyimpan laporan ke database
+            $laporan = new Laporan();
+            $laporan->user_id = Auth::id(); //Mengambil IS user yang sedang login
+            $laporan->name = Auth::user()->name;
+            $laporan->description = $request['description'];
+            $laporan->location = $request['location'];
+            $laporan->date = now();
+            $laporan->time = 'pagi'; //nanti ini dibikin kondisi
+            $laporan->status = 'pending';
+            $laporan->presence = $request['status'];
 
-           $laporan->image = $request->file('images')->store('image', 'public');
-           $laporan->save();
+            $laporan->image = $request->file('images')->store('image', 'public');
+            $laporan->save();
 
-           return redirect()->back()->with('success', 'Berhasil mengirim laporan.');
+            return redirect()->back()->with('success', 'Berhasil mengirim laporan.');
         } catch (\Exception $e) {
             \Log::error($e);
             return redirect()->back()->with('error', 'Gagal mengirim laporan');
