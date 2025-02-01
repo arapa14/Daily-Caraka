@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Laporan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LaporanController extends Controller
 {
@@ -28,7 +29,35 @@ class LaporanController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request->all());
+        //validasi input dari form
+        $request->validate([
+            'images' => 'required|file|mimes:jpg,png|max:2048',
+            'description' => 'required|string|max:255',
+            'location' => 'required|string',
+            'status' => 'required|string|in:hadir,izin,sakit',
+        ]);
+
+        try {
+           // menyimpan laporan ke database
+           $laporan = new Laporan();
+           $laporan->user_id = Auth::id(); //Mengambil IS user yang sedang login
+           $laporan->name = Auth::user()->name;
+           $laporan->description = $request['description'];
+           $laporan->location = $request['location'];
+           $laporan->date = now();
+           $laporan->time = 'pagi'; //nanti ini dibikin kondisi
+           $laporan->status = 'pending';
+           $laporan->presence = $request['status'];
+
+           $laporan->image = $request->file('images')->store('image', 'public');
+           $laporan->save();
+
+           return redirect()->back()->with('success', 'Berhasil mengirim laporan.');
+        } catch (\Exception $e) {
+            \Log::error($e);
+            return redirect()->back()->with('error', 'Gagal mengirim laporan');
+        }
     }
 
     /**

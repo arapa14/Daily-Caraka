@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('time', ['pagi', 'siang', 'sore', 'invalid']);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->enum('presence', ['hadir', 'sakit', 'izin', 'alpa']);
+            $table->string('image')->nullable();
             $table->timestamps();
 
             // menambahkan kolom user_id yang diambil dari table users

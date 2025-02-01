@@ -20,7 +20,7 @@
 
         <!-- Tombol Logout dengan Ikon -->
         <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto">
-            @csrf
+            @csrf   
             <button type="submit" class="flex items-center text-blue-600 hover:text-blue-900 text-lg w-full sm:w-auto">
                 <!-- Ikon Logout -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none" stroke="currentColor"
@@ -41,11 +41,23 @@
 
     <div class="mt-6 bg-white shadow-md rounded-lg p-6">
         <h2 class="text-lg font-semibold">Submit Laporan</h2>
-        <form action="">
+        @if ($errors->any())
+            <div class="p-3 mt-3 text-sm text-red-600 bg-red-100 rounded">
+                @foreach ($errors->all() as $error)
+                    <p>{{ $error }}</p>
+                @endforeach
+            </div>
+        @endif
+        @if(session('success'))
+            <div class="p-3 mt-3 text-sm text-green-600 bg-green-100 rounded">
+                {{session('success')}}
+            </div>
+        @endif
+        <form action="{{route('laporan.store')}}" method="POST" enctype="multipart/form-data">
             @csrf
             {{-- file input --}}
             <div class="mt-4">
-                <input type="file" name="file" class="w-full p-2 border rounded-md">
+                <input type="file" name="images" class="w-full p-2 border rounded-md">
             </div>
             {{-- description input --}}
             <div class="mt-4">
@@ -65,7 +77,7 @@
                 <select name="status" class="w-full p-2 border rounded-md">
                     <option>Pilih Status</option>
                     <option value="hadir">Hadir</option>
-                    <option value="izin">Sakit</option>
+                    <option value="sakit">Sakit</option>
                     <option value="izin">Izin</option>
                 </select>
             </div>

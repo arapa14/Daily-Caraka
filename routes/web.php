@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +41,7 @@ Route::middleware(['auth', 'isCaraka'])->group(function () {
     Route::get('/caraka', function () {
         return view('caraka.dashboard');
     })->name('caraka.dashboard');
+
+    // Laporan
+    Route::post('/submit-laporan', [LaporanController::class, 'store'])->name('laporan.store');
 });
