@@ -170,7 +170,7 @@
         updateClock();
     
         // Update setiap 1 menit (60000 ms) untuk mengurangi beban server
-        setInterval(updateClock, 60000);
+        setInterval(updateClock, 30000);
     </script>
     
     

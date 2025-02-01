@@ -32,6 +32,29 @@ class LaporanController extends Controller
     {
         $user = auth()->user();
         $today = Carbon::today();
+        $currentHour = Carbon::now()->hour;
+
+        // Kalau bisa ini dibikin dinamis di setting agar bisa diatur admin di web
+        // Menentukan sesi berdasarkan waktu saat ini
+        if ($currentHour >= 6 && $currentHour < 12) {
+            $session = 'pagi';
+        } elseif ($currentHour >= 12 && $currentHour < 15) {
+            $session = 'siang';
+        } elseif ($currentHour >= 15 && $currentHour < 17) {
+            $session = 'sore';
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Laporan hanya dapat dikirim antara 06:00 hingga 17:00!']);
+        }
+
+        // Cek apakah user sudah mengirim laporan untuk sesi ini hari ini
+        $laporanSesiIni = Laporan::where('user_id', $user->id)
+            ->whereDate('created_at', $today)
+            ->where('time', $session)
+            ->exists();
+
+        if ($laporanSesiIni) {
+            return redirect()->back()->withErrors(['error' => "Anda sudah mengirim laporan sesi $session hari ini!"]);
+        }
 
         // Hitung jumlah laporan hari ini
         $jumlahLaporanHariIni = Laporan::where('user_id', $user->id)
@@ -59,7 +82,7 @@ class LaporanController extends Controller
             $laporan->description = $request['description'];
             $laporan->location = $request['location'];
             $laporan->date = now();
-            $laporan->time = 'pagi'; //nanti ini dibikin kondisi
+            $laporan->time = $session; //nanti ini dibikin kondisi
             $laporan->status = 'pending';
             $laporan->presence = $request['status'];
 
