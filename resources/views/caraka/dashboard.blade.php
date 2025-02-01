@@ -43,20 +43,21 @@
         <h2 class="text-lg font-semibold">Submit Laporan</h2>
         <form action="">
             @csrf
-            {{-- description input --}}
-            <div class="mt-4">
-                <input type="text" name="description" placeholder="Deskripsi" class="w-full p-2 border rounded-md">
-            </div>
             {{-- file input --}}
             <div class="mt-4">
                 <input type="file" name="file" class="w-full p-2 border rounded-md">
+            </div>
+            {{-- description input --}}
+            <div class="mt-4">
+                <input type="text" name="description" placeholder="Deskripsi" class="w-full p-2 border rounded-md">
             </div>
             {{-- location input --}}
             <div class="mt-4">
                 <select name="location" class="w-full p-2 border rounded-md">
                     <option>Pilih lokasi</option>
-                    <option value="lokasi1">Lokasi 1</option>
-                    <option value="lokasi2">Lokasi 2</option>
+                    @foreach ($locations as $location)
+                        <option value="{{$location->location}}">{{$location->location}}</option>
+                    @endforeach
                 </select>
             </div>
             {{-- status input --}}
