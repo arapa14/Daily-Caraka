@@ -132,7 +132,7 @@
                                 @php
                                     $statusColor = match ($laporan->status) {
                                         'pending' => 'bg-yellow-100 text-yellow-700',
-                                        'approve' => 'bg-green-100 text-green-700',
+                                        'approved' => 'bg-green-100 text-green-700',
                                         'rejected' => 'bg-red-100 text-red-700',
                                         default => 'bg-gray-100 text-gray-700',
                                     };
