@@ -36,7 +36,7 @@ class LaporanController extends Controller
 
         // Kalau bisa ini dibikin dinamis di setting agar bisa diatur admin di web
         // Konfigurasi apakah pembatasan waktu diaktifkan
-        $enable_time_restriction = true; // Ubah ke false jika ingin menonaktifkan pembatasan error
+        $enable_time_restriction = true // Ubah ke false jika ingin menonaktifkan pembatasan error
 
         // Menentukan sesi berdasarkan waktu saat ini
         if ($currentHour >= 6 && $currentHour < 12) {

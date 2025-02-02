@@ -35,6 +35,13 @@ Route::middleware(['auth', 'isReviewer'])->group(function () {
     Route::get('/reviewer', function () {
         return view('reviewer.dashboard');
     })->name('reviewer.dashboard');
+
+    // Laporan Status
+    Route::get('/status', function() {
+        $laporans = \App\Models\Laporan::all();
+
+        return view('reviewer.status', compact('laporans'));
+    })->name('status');
 });
 
 // Rute untuk Caraka

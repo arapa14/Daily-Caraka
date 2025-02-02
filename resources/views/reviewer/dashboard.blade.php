@@ -32,6 +32,20 @@
         </form>
     </div>
 
+    <!-- Card Dashboard -->
+    <div class="flex justify-center items-center min-h-[50vh] mt-7">
+        <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-center">
+            <h2 class="text-3xl font-extrabold text-gray-800">Selamat Datang di Reviewer Dashboard!</h2>
+            <p class="text-gray-600 mt-3 text-lg">Lihat laporan yang sudah dibuat oleh Caraka hari ini.</p>
+
+            <a href="{{ route('status') }}"
+                class="mt-6 inline-block bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold py-3 px-6 rounded-xl shadow-lg transition-transform transform hover:scale-105">
+                Show Laporan
+            </a>
+        </div>
+    </div>
+
+
     <script>
         function updateClock() {
             fetch('/server-time')
