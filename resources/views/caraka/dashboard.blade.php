@@ -21,7 +21,7 @@
         <!-- Tombol Logout dengan Ikon -->
         <form action="{{ route('logout') }}" method="POST" class="w-full sm:w-auto">
             @csrf
-            <button type="submit" class="flex items-center text-blue-600 hover:text-blue-900 text-lg w-full sm:w-auto">
+            <button type="submit" class="flex items-center text-red-600 hover:text-red-800 text-lg w-full sm:w-auto">
                 <!-- Ikon Logout -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

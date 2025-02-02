@@ -95,8 +95,8 @@
                 <thead>
                     <tr class="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-center">
                         <th class="p-3">ID</th>
-                        <th class="p-3">Tanggal</th>
                         <th class="p-3">Waktu</th>
+                        <th class="p-3">Sesi</th>
                         <th class="p-3">Deskripsi</th>
                         <th class="p-3">Lokasi</th>
                         <th class="p-3">Kehadiran</th>
@@ -108,7 +108,7 @@
                     @foreach ($laporans as $laporan)
                         <tr class="border-b hover:bg-gray-50 text-center transition duration-200">
                             <td class="p-3 font-semibold text-gray-700">{{ $laporan->id }}</td>
-                            <td class="p-3">{{ $laporan->date }}</td>
+                            <td class="p-3">{{ $laporan->created_at }}</td>
                             <td class="p-3">{{ $laporan->time }}</td>
                             <td class="p-3 text-left">{{ $laporan->description }}</td>
                             <td class="p-3">{{ $laporan->location }}</td>

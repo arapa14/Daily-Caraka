@@ -24,8 +24,8 @@ class LaporanController extends Controller
 
         // Konfigurasi dinamis dari settings
         // Jika tidak ditemukan, gunakan default value
-        $enable_time_restriction = isset($settings['enable_time_restriction']) 
-            ? ($settings['enable_time_restriction'] == '1') 
+        $enable_time_restriction = isset($settings['enable_time_restriction'])
+            ? ($settings['enable_time_restriction'] == '1')
             : true;
 
         $pagi_start = isset($settings['pagi_start']) ? (int)$settings['pagi_start'] : 6;
@@ -91,7 +91,7 @@ class LaporanController extends Controller
             $laporan = new Laporan();
             $laporan->user_id    = Auth::id();
             $laporan->name       = Auth::user()->name;
-            $laporan->description= $request->input('description');
+            $laporan->description = $request->input('description');
             $laporan->location   = $request->input('location');
             $laporan->date       = now();
             $laporan->time       = $session;
@@ -105,6 +105,28 @@ class LaporanController extends Controller
         } catch (\Exception $e) {
             \Log::error($e);
             return redirect()->back()->with('error', 'Gagal mengirim laporan');
+        }
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        // Validasi input status yang diterima
+        $request->validate([
+            'status' => 'required|string|in:pending,approved,rejected',
+        ]);
+
+        try {
+            // Cari laporan berdasarkan ID, jika tidak ditemukan akan memunculkan ModelNotFoundException
+            $laporan = Laporan::findOrFail($id);
+
+            // Update status laporan
+            $laporan->status = $request->input('status');
+            $laporan->save();
+
+            return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
+        } catch (\Exception $e) {
+            \Log::error("Error updating laporan status: " . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Gagal memperbarui status laporan.']);
         }
     }
 

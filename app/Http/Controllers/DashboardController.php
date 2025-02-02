@@ -15,6 +15,8 @@ class DashboardController extends Controller
         $locations = Location::all();
         $today = Carbon::today();
 
+        $laporans = Laporan::orderBy('created_at', 'desc')->paginate(10);
+
         // Ambil laporan user hari ini
         $laporanHariIni = Laporan::where('user_id', $user->id)
             ->whereDate('created_at', $today)
@@ -26,7 +28,7 @@ class DashboardController extends Controller
         $jumlahUploadHariIni = $laporanHariIni->count();
 
         if ($user->role === 'admin') {
-            return view('admin.dashboard', compact(['user', 'locations']));
+            return view('admin.dashboard', compact(['user', 'locations', 'laporans']));
         } elseif ($user->role === 'reviewer') {
             return view('reviewer.dashboard', compact('user'));
         } else {

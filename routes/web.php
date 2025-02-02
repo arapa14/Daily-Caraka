@@ -42,6 +42,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     // CRUD setting
     Route::get('/setting', [SettingController::class, 'index'])->name('setting');
     Route::post('/setting/update', [SettingController::class, 'update'])->name('setting.update');
+
+    // Update Status
+    Route::patch('/admin/update/{id}', [LaporanController::class, 'updateStatus'])->name('updateAdmin');
 });
 
 // Rute untuk Reviewer
