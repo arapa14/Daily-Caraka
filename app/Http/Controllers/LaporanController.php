@@ -7,9 +7,103 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\Geometry\Factories\RectangleFactory;
 
 class LaporanController extends Controller
 {
+    private function processImage($imageFile, $imageNamePrefix, $directory, $watermarkText, $fontPath, $sizeLimit = 1024)
+    {
+        // create image manager with desired driver
+        $manager = new ImageManager(new Driver());
+
+        // Buat nama file gambar
+        $imageName = time() . "_{$imageNamePrefix}." . $imageFile->getClientOriginalExtension();
+
+        // Tentukan path lengkap untuk menyimpan gambar (di folder storage/app/public/{$directory})
+        $imagePath = storage_path("app/public/{$directory}/{$imageName}");
+
+        // Buat instance gambar menggunakan Intervention Image
+        $image = $manager->read($imageFile->getRealPath());
+
+        // --- Konfigurasi Watermark ---
+        $padding = 30;
+        $fontSize = 40;
+
+        // Pisahkan teks watermark ke baris-baris
+        $lines = explode("\n", $watermarkText);
+        $lineCount = count($lines);
+        $lineHeight = $fontSize + 5;
+        $textBoxHeight = $lineCount * $lineHeight;
+
+        // Hitung lebar teks terpanjang menggunakan fungsi imagettfbbox
+        $maxTextWidth = 0;
+        foreach ($lines as $line) {
+            $box = imagettfbbox($fontSize, 0, $fontPath, $line);
+            $textWidth = abs($box[2] - $box[0]);
+            if ($textWidth > $maxTextWidth) {
+                $maxTextWidth = $textWidth;
+            }
+        }
+        $textBoxWidth = $maxTextWidth;
+
+        // Tentukan ukuran background watermark
+        $backgroundWidth = $textBoxWidth - 10;
+        $backgroundHeight = $textBoxHeight + $padding * 2;
+
+        // Tentukan margin dari tepi gambar
+        $margin = 10;
+
+        // Hitung koordinat background (pojok kiri atas)
+        $backgroundX = $image->width() - $backgroundWidth - $margin;
+        $backgroundY = $image->height() - $backgroundHeight - $margin;
+
+        // Tambahkan background semi-transparan di pojok kanan bawah
+        $image->drawRectangle($backgroundX, $backgroundY, function (RectangleFactory $rectangle) use ($backgroundWidth, $backgroundHeight) {
+            $rectangle->size($backgroundWidth, $backgroundHeight);
+            $rectangle->background('rgba(0, 0, 0, 0.5)');
+            $rectangle->border('white', 2);
+        });
+
+        // Tentukan posisi teks: ditempatkan dengan align kanan dan bawah di dalam background
+        $textX = $backgroundX + $backgroundWidth - $padding;
+        $textY = $backgroundY + $backgroundHeight - $padding;
+
+        // Tambahkan teks watermark
+        $image->text($watermarkText, $textX, $textY, function ($font) use ($fontPath, $fontSize) {
+            $font->file($fontPath);
+            $font->size($fontSize);
+            $font->color('rgba(255, 255, 255, 0.9)');
+            $font->align('right');
+            $font->valign('bottom');
+        });
+
+
+        // Pastikan direktori penyimpanan gambar sudah ada
+        if (!file_exists(storage_path("app/public/{$directory}"))) {
+            mkdir(storage_path("app/public/{$directory}"), 0755, true);
+        }
+
+        // Simpan gambar dengan kualitas awal 80%
+        $quality = 80;
+        $image->save($imagePath, $quality);
+
+        // Lakukan kompresi tambahan jika ukuran file melebihi batas ($sizeLimit dalam KB)
+        while (filesize($imagePath) > $sizeLimit * 1024) {
+            // Jika kualitas sudah terlalu rendah, hentikan loop
+            if ($quality <= 10) {
+                break;
+            }
+            $quality -= 10;
+            $image->save($imagePath, $quality);
+        }
+
+        // Kembalikan path gambar yang bisa diakses secara publik
+        // (pastikan Anda telah menjalankan "php artisan storage:link" untuk membuat symbolic link ke folder storage)
+        return "/{$directory}/{$imageName}";
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -86,6 +180,26 @@ class LaporanController extends Controller
             'status'      => 'required|string|in:hadir,izin,sakit',
         ]);
 
+        // Ambil file gambar yang diupload
+        $imageFile = $request->file('images');
+
+        // Nama prefix untuk gambar, misalnya "laporan"
+        $imageNamePrefix = 'laporan';
+
+        // Direktori penyimpanan gambar (storage/app/public/laporan_images)
+        $directory = 'image';
+
+        // Watermark: gabungan nama user dan timestamp
+        // Pastikan Anda telah mengaktifkan autentikasi (misalnya dengan auth()->user())
+        $userName = auth()->check() ? auth()->user()->name : 'Guest';
+        $watermarkText = $userName . " - " . now()->format('d/m/Y H:i:s');
+
+        // Path file font (sesuaikan dengan lokasi file font Anda)
+        $fontPath = public_path('arial.ttf');
+
+        // Proses gambar dan dapatkan path gambar yang telah diproses
+        $processedImagePath = $this->processImage($imageFile, $imageNamePrefix, $directory, $watermarkText, $fontPath);
+
         try {
             // Menyimpan laporan ke database
             $laporan = new Laporan();
@@ -98,7 +212,8 @@ class LaporanController extends Controller
             $laporan->status     = 'pending';
             $laporan->presence   = $request->input('status');
 
-            $laporan->image = $request->file('images')->store('image', 'public');
+            // $laporan->image = $request->file('images')->store('image', 'public');
+            $laporan->image = $processedImagePath;
             $laporan->save();
 
             return redirect()->back()->with('success', 'Berhasil mengirim laporan.');

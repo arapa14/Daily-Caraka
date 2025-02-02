@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     @vite(['resources/css/app.css'])
-    <style>
+    {{-- <style>
         /* CSS tambahan untuk container video preview */
         #videoContainer {
             position: relative;
@@ -21,7 +21,7 @@
             border: 1px solid #ddd;
             border-radius: 0.375rem;
         }
-    </style>
+    </style> --}}
 </head>
 
 <body>
@@ -73,7 +73,9 @@
         <form action="{{ route('laporan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            {{-- Bagian video preview dengan overlay timestamp dan user --}}
+
+
+            {{-- Bagian video preview dengan overlay timestamp dan user
             <div id="videoCaptureSection" class="mt-4" style="display: none;">
                 <!-- Container preview -->
                 <div id="videoContainer">
@@ -87,10 +89,18 @@
                 <input type="hidden" name="image_data" id="image_data">
             </div>
 
-            {{-- Bagian fallback: input file untuk mengambil gambar secara biasa --}}
+            Bagian fallback: input file untuk mengambil gambar secara biasa
             <div id="fileInputSection" class="mt-4" style="display: none;">
                 <input type="file" name="images" accept="image/*" capture="environment"
                     class="w-full p-2 border rounded-md">
+            </div> --}}
+
+
+
+            <!-- Input Upload Gambar -->
+            <div>
+                <input type="file" name="images" id="images" capture="environment" required
+                       class="mt-1 w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             {{-- description input --}}
@@ -250,94 +260,94 @@
             }
         }, 5000);
 
-        // Buat elemen video (tidak ditampilkan) sebagai sumber stream
-        const video = document.createElement('video');
-        video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
+        // // Buat elemen video (tidak ditampilkan) sebagai sumber stream
+        // const video = document.createElement('video');
+        // video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
 
-        // Dapatkan elemen canvas dan konteksnya
-        const canvas = document.getElementById('previewCanvas');
-        const ctx = canvas.getContext('2d');
+        // // Dapatkan elemen canvas dan konteksnya
+        // const canvas = document.getElementById('previewCanvas');
+        // const ctx = canvas.getContext('2d');
 
-        // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
-        const userName = "{{ $user->name }}";
+        // // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
+        // const userName = "{{ $user->name }}";
 
-        // Cek ketersediaan getUserMedia
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            // Tampilkan bagian video capture
-            document.getElementById('videoCaptureSection').style.display = 'block';
+        // // Cek ketersediaan getUserMedia
+        // if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        //     // Tampilkan bagian video capture
+        //     document.getElementById('videoCaptureSection').style.display = 'block';
 
-            // Buat elemen video (tidak ditampilkan) sebagai sumber stream
-            const video = document.createElement('video');
-            video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
+        //     // Buat elemen video (tidak ditampilkan) sebagai sumber stream
+        //     const video = document.createElement('video');
+        //     video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
 
-            // Dapatkan elemen canvas dan konteksnya
-            const canvas = document.getElementById('previewCanvas');
-            const ctx = canvas.getContext('2d');
+        //     // Dapatkan elemen canvas dan konteksnya
+        //     const canvas = document.getElementById('previewCanvas');
+        //     const ctx = canvas.getContext('2d');
 
-            // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
-            const userName = "{{ $user->name }}";
+        //     // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
+        //     const userName = "{{ $user->name }}";
 
-            // Minta akses ke kamera
-            navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.play();
-                    video.addEventListener('loadedmetadata', function() {
-                        // Set ukuran canvas sesuai dengan ukuran video
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        // Mulai menggambar frame video secara berulang dengan overlay
-                        drawFrame();
-                    });
-                })
-                .catch(function(err) {
-                    console.error("Error mengakses kamera: " + err);
-                    // Jika terjadi error, tampilkan fallback file input
-                    document.getElementById('videoCaptureSection').style.display = 'none';
-                    document.getElementById('fileInputSection').style.display = 'block';
-                });
+        //     // Minta akses ke kamera
+        //     navigator.mediaDevices.getUserMedia({
+        //             video: true,
+        //             audio: false
+        //         })
+        //         .then(function(stream) {
+        //             video.srcObject = stream;
+        //             video.play();
+        //             video.addEventListener('loadedmetadata', function() {
+        //                 // Set ukuran canvas sesuai dengan ukuran video
+        //                 canvas.width = video.videoWidth;
+        //                 canvas.height = video.videoHeight;
+        //                 // Mulai menggambar frame video secara berulang dengan overlay
+        //                 drawFrame();
+        //             });
+        //         })
+        //         .catch(function(err) {
+        //             console.error("Error mengakses kamera: " + err);
+        //             // Jika terjadi error, tampilkan fallback file input
+        //             document.getElementById('videoCaptureSection').style.display = 'none';
+        //             document.getElementById('fileInputSection').style.display = 'block';
+        //         });
 
-            // Fungsi untuk menggambar frame video dan overlay
-            function drawFrame() {
-                try {
-                    // Gambar frame video ke canvas
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                } catch (error) {
-                    console.error("Gagal menggambar frame video:", error);
-                }
-                // Dapatkan waktu saat ini untuk ditampilkan
-                const now = new Date();
-                const timestamp = now.toLocaleString();
+        //     // Fungsi untuk menggambar frame video dan overlay
+        //     function drawFrame() {
+        //         try {
+        //             // Gambar frame video ke canvas
+        //             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        //         } catch (error) {
+        //             console.error("Gagal menggambar frame video:", error);
+        //         }
+        //         // Dapatkan waktu saat ini untuk ditampilkan
+        //         const now = new Date();
+        //         const timestamp = now.toLocaleString();
 
-                // Gambar kotak transparan sebagai latar teks agar mudah dibaca
-                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
-                ctx.fillRect(10, canvas.height - 40, 300, 30);
+        //         // Gambar kotak transparan sebagai latar teks agar mudah dibaca
+        //         ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        //         ctx.fillRect(10, canvas.height - 40, 300, 30);
 
-                // Gambar teks (nama user dan timestamp)
-                ctx.fillStyle = "#fff";
-                ctx.font = "16px sans-serif";
-                ctx.fillText(userName + " - " + timestamp, 15, canvas.height - 20);
+        //         // Gambar teks (nama user dan timestamp)
+        //         ctx.fillStyle = "#fff";
+        //         ctx.font = "16px sans-serif";
+        //         ctx.fillText(userName + " - " + timestamp, 15, canvas.height - 20);
 
-                // Memperbarui canvas secara berulang
-                requestAnimationFrame(drawFrame);
-            }
+        //         // Memperbarui canvas secara berulang
+        //         requestAnimationFrame(drawFrame);
+        //     }
 
-            // Tombol "Ambil Gambar" untuk mengambil snapshot dari canvas
-            document.getElementById('captureBtn').addEventListener('click', function() {
-                // Mengambil data gambar dalam format dataURL (PNG)
-                const dataURL = canvas.toDataURL('image/png');
-                // Menyimpan data gambar ke hidden input
-                document.getElementById('image_data').value = dataURL;
-                alert("Gambar telah diambil dan siap untuk submit.");
-            });
-        } else {
-            // Jika browser tidak mendukung getUserMedia, tampilkan file input
-            console.error("Browser tidak mendukung navigator.mediaDevices.getUserMedia");
-            document.getElementById('fileInputSection').style.display = 'block';
-        }
+        //     // Tombol "Ambil Gambar" untuk mengambil snapshot dari canvas
+        //     document.getElementById('captureBtn').addEventListener('click', function() {
+        //         // Mengambil data gambar dalam format dataURL (PNG)
+        //         const dataURL = canvas.toDataURL('image/png');
+        //         // Menyimpan data gambar ke hidden input
+        //         document.getElementById('image_data').value = dataURL;
+        //         alert("Gambar telah diambil dan siap untuk submit.");
+        //     });
+        // } else {
+        //     // Jika browser tidak mendukung getUserMedia, tampilkan file input
+        //     console.error("Browser tidak mendukung navigator.mediaDevices.getUserMedia");
+        //     document.getElementById('fileInputSection').style.display = 'block';
+        // }
     </script>
 </body>
 
