@@ -2,11 +2,26 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
     @vite(['resources/css/app.css'])
+    <style>
+        /* CSS tambahan untuk container video preview */
+        #videoContainer {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* canvas preview diatur responsif */
+        #previewCanvas {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 0.375rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -57,10 +72,27 @@
         @endif
         <form action="{{ route('laporan.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            {{-- file input --}}
-            <div class="mt-4">
-                <input type="file" name="images" class="w-full p-2 border rounded-md">
+
+            {{-- Bagian video preview dengan overlay timestamp dan user --}}
+            <div id="videoCaptureSection" class="mt-4" style="display: none;">
+                <!-- Container preview -->
+                <div id="videoContainer">
+                    <!-- Canvas untuk preview video dengan overlay -->
+                    <canvas id="previewCanvas"></canvas>
+                </div>
+                <!-- Tombol untuk mengambil gambar (capture) -->
+                <button type="button" id="captureBtn"
+                    class="mt-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Ambil Gambar</button>
+                <!-- Hidden input untuk menyimpan data gambar (dataURL) -->
+                <input type="hidden" name="image_data" id="image_data">
             </div>
+
+            {{-- Bagian fallback: input file untuk mengambil gambar secara biasa --}}
+            <div id="fileInputSection" class="mt-4" style="display: none;">
+                <input type="file" name="images" accept="image/*" capture="environment"
+                    class="w-full p-2 border rounded-md">
+            </div>
+
             {{-- description input --}}
             <div class="mt-4">
                 <input type="text" name="description" placeholder="Deskripsi" class="w-full p-2 border rounded-md">
@@ -135,17 +167,17 @@
                             <div class="flex space-x-2">
                                 <span
                                     class="px-3 py-1 font-semibold rounded-lg 
-                                    @if ($laporan->presence == 'hadir') bg-green-100 text-green-600 
-                                    @elseif($laporan->presence == 'sakit') bg-yellow-100 text-yellow-700
-                                    @elseif($laporan->presence == 'izin') bg-blue-100 text-blue-700
-                                    @else bg-red-100 text-red-700 @endif">
+                        @if ($laporan->presence == 'hadir') bg-green-100 text-green-600 
+                        @elseif($laporan->presence == 'sakit') bg-yellow-100 text-yellow-700
+                        @elseif($laporan->presence == 'izin') bg-blue-100 text-blue-700
+                        @else bg-red-100 text-red-700 @endif">
                                     {{ ucfirst($laporan->presence) }}
                                 </span>
                                 <span
                                     class="px-3 py-1 font-semibold rounded-lg
-                                    @if ($laporan->status == 'approved') bg-green-100 text-green-600 
-                                    @elseif($laporan->status == 'rejected') bg-red-100 text-red-600
-                                    @else bg-yellow-100 text-yellow-600 @endif">
+                        @if ($laporan->status == 'approved') bg-green-100 text-green-600 
+                        @elseif($laporan->status == 'rejected') bg-red-100 text-red-600
+                        @else bg-yellow-100 text-yellow-600 @endif">
                                     {{ ucfirst($laporan->status) }}
                                 </span>
                             </div>
@@ -155,11 +187,6 @@
             </div>
         @endif
     </div>
-
-
-
-
-
 
     <script>
         function updateClock() {
@@ -202,10 +229,10 @@
         // Panggil saat halaman dimuat
         updateClock();
 
-        // Update setiap 1 menit (60000 ms) untuk mengurangi beban server
+        // Update setiap 30 detik
         setInterval(updateClock, 30000);
 
-        // Menghilangkan pesan setelah 5 detik (5000ms)
+        // Menghilangkan pesan setelah 5 detik
         setTimeout(function() {
             let errorMessage = document.getElementById('error-message');
             let successMessage = document.getElementById('success-message');
@@ -222,9 +249,96 @@
                 setTimeout(() => successMessage.remove(), 500);
             }
         }, 5000);
+
+        // Buat elemen video (tidak ditampilkan) sebagai sumber stream
+        const video = document.createElement('video');
+        video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
+
+        // Dapatkan elemen canvas dan konteksnya
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
+        const userName = "{{ $user->name }}";
+
+        // Cek ketersediaan getUserMedia
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Tampilkan bagian video capture
+            document.getElementById('videoCaptureSection').style.display = 'block';
+
+            // Buat elemen video (tidak ditampilkan) sebagai sumber stream
+            const video = document.createElement('video');
+            video.setAttribute('playsinline', ''); // Penting untuk perangkat iOS
+
+            // Dapatkan elemen canvas dan konteksnya
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Ambil nama user dari blade (pastikan variabel $user->name tersedia)
+            const userName = "{{ $user->name }}";
+
+            // Minta akses ke kamera
+            navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                    video.addEventListener('loadedmetadata', function() {
+                        // Set ukuran canvas sesuai dengan ukuran video
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        // Mulai menggambar frame video secara berulang dengan overlay
+                        drawFrame();
+                    });
+                })
+                .catch(function(err) {
+                    console.error("Error mengakses kamera: " + err);
+                    // Jika terjadi error, tampilkan fallback file input
+                    document.getElementById('videoCaptureSection').style.display = 'none';
+                    document.getElementById('fileInputSection').style.display = 'block';
+                });
+
+            // Fungsi untuk menggambar frame video dan overlay
+            function drawFrame() {
+                try {
+                    // Gambar frame video ke canvas
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                } catch (error) {
+                    console.error("Gagal menggambar frame video:", error);
+                }
+                // Dapatkan waktu saat ini untuk ditampilkan
+                const now = new Date();
+                const timestamp = now.toLocaleString();
+
+                // Gambar kotak transparan sebagai latar teks agar mudah dibaca
+                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                ctx.fillRect(10, canvas.height - 40, 300, 30);
+
+                // Gambar teks (nama user dan timestamp)
+                ctx.fillStyle = "#fff";
+                ctx.font = "16px sans-serif";
+                ctx.fillText(userName + " - " + timestamp, 15, canvas.height - 20);
+
+                // Memperbarui canvas secara berulang
+                requestAnimationFrame(drawFrame);
+            }
+
+            // Tombol "Ambil Gambar" untuk mengambil snapshot dari canvas
+            document.getElementById('captureBtn').addEventListener('click', function() {
+                // Mengambil data gambar dalam format dataURL (PNG)
+                const dataURL = canvas.toDataURL('image/png');
+                // Menyimpan data gambar ke hidden input
+                document.getElementById('image_data').value = dataURL;
+                alert("Gambar telah diambil dan siap untuk submit.");
+            });
+        } else {
+            // Jika browser tidak mendukung getUserMedia, tampilkan file input
+            console.error("Browser tidak mendukung navigator.mediaDevices.getUserMedia");
+            document.getElementById('fileInputSection').style.display = 'block';
+        }
     </script>
-
-
 </body>
 
 </html>
