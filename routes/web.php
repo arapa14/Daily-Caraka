@@ -5,6 +5,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SwitchAccountController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,10 @@ Route::get('/dashboard', [DashboardController::class, "index"])->name('dashboard
 
 // API
 Route::get('/server-time', [DashboardController::class, 'getServerTime']);
+
+// SwitchAccount untuk admin
+Route::get('/switch/{id}', [SwitchAccountController::class, 'switchAccount'])->name('switch-account');
+Route::get('/switch-back', [SwitchAccountController::class, 'switchBack'])->name('switch-back');
 
 // Rute untuk Admin
 Route::middleware(['auth', 'isAdmin'])->group(function () {
