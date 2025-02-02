@@ -38,10 +38,13 @@ Route::middleware(['auth', 'isReviewer'])->group(function () {
 
     // Laporan Status
     Route::get('/status', function() {
-        $laporans = \App\Models\Laporan::all();
+        $laporans = \App\Models\Laporan::orderBy('created_at', 'desc')->paginate(10);
 
         return view('reviewer.status', compact('laporans'));
     })->name('status');
+
+    // Update Status
+    Route::patch('/laporan/{id}/status', [LaporanController::class, 'updateStatus'])->name('update.status');
 });
 
 // Rute untuk Caraka

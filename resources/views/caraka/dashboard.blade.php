@@ -43,14 +43,15 @@
     <div class="mt-6 bg-white shadow-md rounded-lg p-6">
         <h2 class="text-lg font-semibold">Submit Laporan</h2>
         @if ($errors->any())
-            <div class="p-3 mt-3 text-sm text-red-600 bg-red-100 rounded">
+            <div id="error-message" class="p-3 mt-3 text-sm text-red-600 bg-red-100 rounded">
                 @foreach ($errors->all() as $error)
                     <p>{{ $error }}</p>
                 @endforeach
             </div>
         @endif
+
         @if (session('success'))
-            <div class="p-3 mt-3 text-sm text-green-600 bg-green-100 rounded">
+            <div id="success-message" class="p-3 mt-3 text-sm text-green-600 bg-green-100 rounded">
                 {{ session('success') }}
             </div>
         @endif
@@ -203,6 +204,24 @@
 
         // Update setiap 1 menit (60000 ms) untuk mengurangi beban server
         setInterval(updateClock, 30000);
+
+        // Menghilangkan pesan setelah 5 detik (5000ms)
+        setTimeout(function() {
+            let errorMessage = document.getElementById('error-message');
+            let successMessage = document.getElementById('success-message');
+
+            if (errorMessage) {
+                errorMessage.style.transition = "opacity 0.5s";
+                errorMessage.style.opacity = "0";
+                setTimeout(() => errorMessage.remove(), 500);
+            }
+
+            if (successMessage) {
+                successMessage.style.transition = "opacity 0.5s";
+                successMessage.style.opacity = "0";
+                setTimeout(() => successMessage.remove(), 500);
+            }
+        }, 5000);
     </script>
 
 

@@ -36,7 +36,7 @@ class LaporanController extends Controller
 
         // Kalau bisa ini dibikin dinamis di setting agar bisa diatur admin di web
         // Konfigurasi apakah pembatasan waktu diaktifkan
-        $enable_time_restriction = true // Ubah ke false jika ingin menonaktifkan pembatasan error
+        $enable_time_restriction = true; // Ubah ke false jika ingin menonaktifkan pembatasan error
 
         // Menentukan sesi berdasarkan waktu saat ini
         if ($currentHour >= 6 && $currentHour < 12) {
@@ -135,5 +135,23 @@ class LaporanController extends Controller
     public function destroy(Laporan $laporan)
     {
         //
+    }
+
+    public function updateStatus(Request $request, $id) {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        try {
+            $laporan = Laporan::findOrFail($id);
+            $laporan->status = $request->status;
+            $laporan->save();
+
+            return back()->with('success', 'Berhasil memperbarui status.');
+        } catch (\exception $e) {
+            \Log::error($e);
+            return back()->with('error', 'Gagal memperbaru status');
+        }
+
     }
 }
