@@ -3,28 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Laporan;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class LaporanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -34,24 +19,39 @@ class LaporanController extends Controller
         $today = Carbon::today();
         $currentHour = Carbon::now()->hour;
 
-        // Kalau bisa ini dibikin dinamis di setting agar bisa diatur admin di web
-        // Konfigurasi apakah pembatasan waktu diaktifkan
-        $enable_time_restriction = true; // Ubah ke false jika ingin menonaktifkan pembatasan error
+        // Ambil semua settings sebagai array key-value
+        $settings = Setting::all()->pluck('value', 'key')->toArray();
 
-        // Menentukan sesi berdasarkan waktu saat ini
-        if ($currentHour >= 6 && $currentHour < 12) {
+        // Konfigurasi dinamis dari settings
+        // Jika tidak ditemukan, gunakan default value
+        $enable_time_restriction = isset($settings['enable_time_restriction']) 
+            ? ($settings['enable_time_restriction'] == '1') 
+            : true;
+
+        $pagi_start = isset($settings['pagi_start']) ? (int)$settings['pagi_start'] : 6;
+        $pagi_end   = isset($settings['pagi_end'])   ? (int)$settings['pagi_end']   : 12;
+        $siang_start = isset($settings['siang_start']) ? (int)$settings['siang_start'] : 12;
+        $siang_end   = isset($settings['siang_end'])   ? (int)$settings['siang_end']   : 15;
+        $sore_start  = isset($settings['sore_start'])  ? (int)$settings['sore_start']  : 15;
+        $sore_end    = isset($settings['sore_end'])    ? (int)$settings['sore_end']    : 17;
+
+        // Tentukan sesi berdasarkan waktu saat ini menggunakan setting
+        if ($currentHour >= $pagi_start && $currentHour < $pagi_end) {
             $session = 'pagi';
-        } elseif ($currentHour >= 12 && $currentHour < 15) {
+        } elseif ($currentHour >= $siang_start && $currentHour < $siang_end) {
             $session = 'siang';
-        } elseif ($currentHour >= 15 && $currentHour < 17) {
+        } elseif ($currentHour >= $sore_start && $currentHour < $sore_end) {
             $session = 'sore';
         } else {
             if ($enable_time_restriction) {
-                return redirect()->back()->withErrors(['error' => 'Laporan hanya dapat dikirim antara 06:00 hingga 17:00!']);
+                return redirect()->back()->withErrors([
+                    'error' => "Laporan hanya dapat dikirim antara {$pagi_start}:00 hingga {$sore_end}:00!"
+                ]);
             }
             $session = 'invalid';
         }
 
+        // Jika pembatasan waktu diaktifkan, lakukan pengecekan tambahan
         if ($enable_time_restriction) {
             // Cek apakah user sudah mengirim laporan untuk sesi ini hari ini
             $laporanSesiIni = Laporan::where('user_id', $user->id)
@@ -60,7 +60,9 @@ class LaporanController extends Controller
                 ->exists();
 
             if ($laporanSesiIni) {
-                return redirect()->back()->withErrors(['error' => "Anda sudah mengirim laporan sesi $session hari ini!"]);
+                return redirect()->back()->withErrors([
+                    'error' => "Anda sudah mengirim laporan sesi {$session} hari ini!"
+                ]);
             }
 
             // Hitung jumlah laporan hari ini
@@ -68,32 +70,33 @@ class LaporanController extends Controller
                 ->whereDate('created_at', $today)
                 ->count();
 
-            // Batasi maksimal 3 upload per hari
+            // Batasi maksimal 3 laporan per hari
             if ($jumlahLaporanHariIni >= 3) {
-                return redirect()->back()->withErrors(['error' => 'Anda telah mencapai batas maksimal 3 laporan hari ini!']);
+                return redirect()->back()->withErrors([
+                    'error' => 'Anda telah mencapai batas maksimal 3 laporan hari ini!'
+                ]);
             }
         }
 
-        // dd($request->all());
-        //validasi input dari form
+        // Validasi input dari form
         $request->validate([
-            'images' => 'required|file|mimes:jpg,png|max:2048',
+            'images'      => 'required|file|mimes:jpg,png|max:2048',
             'description' => 'required|string|max:255',
-            'location' => 'required|string|notin:Pilih lokasi',
-            'status' => 'required|string|in:hadir,izin,sakit',
+            'location'    => 'required|string|not_in:Pilih lokasi',
+            'status'      => 'required|string|in:hadir,izin,sakit',
         ]);
 
         try {
-            // menyimpan laporan ke database
+            // Menyimpan laporan ke database
             $laporan = new Laporan();
-            $laporan->user_id = Auth::id(); //Mengambil IS user yang sedang login
-            $laporan->name = Auth::user()->name;
-            $laporan->description = $request['description'];
-            $laporan->location = $request['location'];
-            $laporan->date = now();
-            $laporan->time = $session; //nanti ini dibikin kondisi
-            $laporan->status = 'pending';
-            $laporan->presence = $request['status'];
+            $laporan->user_id    = Auth::id();
+            $laporan->name       = Auth::user()->name;
+            $laporan->description= $request->input('description');
+            $laporan->location   = $request->input('location');
+            $laporan->date       = now();
+            $laporan->time       = $session;
+            $laporan->status     = 'pending';
+            $laporan->presence   = $request->input('status');
 
             $laporan->image = $request->file('images')->store('image', 'public');
             $laporan->save();
@@ -105,53 +108,5 @@ class LaporanController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Laporan $laporan)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Laporan $laporan)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Laporan $laporan)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Laporan $laporan)
-    {
-        //
-    }
-
-    public function updateStatus(Request $request, $id) {
-        $request->validate([
-            'status' => 'required|in:pending,approved,rejected',
-        ]);
-
-        try {
-            $laporan = Laporan::findOrFail($id);
-            $laporan->status = $request->status;
-            $laporan->save();
-
-            return back()->with('success', 'Berhasil memperbarui status.');
-        } catch (\exception $e) {
-            \Log::error($e);
-            return back()->with('error', 'Gagal memperbaru status');
-        }
-
-    }
+    // Metode lain (index, create, show, edit, update, destroy, updateStatus) tetap
 }

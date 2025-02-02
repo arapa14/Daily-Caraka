@@ -50,7 +50,7 @@
                 </a>
     
                 <!-- Settings -->
-                <a href="#" class="flex flex-col items-center justify-center bg-purple-500 hover:bg-purple-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
+                <a href="{{route('setting')}}" class="flex flex-col items-center justify-center bg-purple-500 hover:bg-purple-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
                     <i class="fas fa-cog text-4xl mb-2"></i>
                     <span class="text-lg font-semibold">Settings</span>
                 </a>
