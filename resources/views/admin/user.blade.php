@@ -17,7 +17,7 @@
 
   {{-- Header --}}
   <div class="bg-white shadow-md rounded-lg p-4 flex flex-col sm:flex-row justify-between items-center">
-    <h1 class="text-xl font-bold text-blue-600 mb-2 sm:mb-0">Dashboard</h1>
+    <a href="{{route('dashboard')}}" class="text-xl font-bold text-blue-600 mb-2 sm:mb-0 hover:bg-blue-100 rounded-xl px-2 py-2">Dashboard</a>
     <form action="{{ route('logout') }}" method="POST">
       @csrf
       <button type="submit" class="text-red-500 hover:text-red-700">
@@ -48,9 +48,14 @@
       </button>
     </form>
 
+    {{-- Search Field --}}
+    <div class="mb-4">
+      <input type="text" id="searchInput" placeholder="Cari user..." class="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
     {{-- Tabel User --}}
     <div class="overflow-x-auto">
-      <table class="w-full border-collapse border border-gray-300">
+      <table class="w-full border-collapse border border-gray-300" id="userTable">
         <thead>
           <tr class="bg-gray-200 text-gray-700">
             <th class="border p-3">ID</th>
@@ -60,7 +65,7 @@
             <th class="border p-3">Actions</th>
           </tr>
         </thead>
-        <tbody id="userTable">
+        <tbody>
           @foreach ($users as $user)
             <tr id="userRow-{{ $user->id }}" class="text-center border">
               <td class="border p-3">{{ $user->id }}</td>
@@ -84,7 +89,7 @@
 
   </div>
 
-  {{-- JavaScript untuk CRUD --}}
+  {{-- JavaScript untuk CRUD dan Search --}}
   <script>
     // Create User
     document.getElementById('createUserForm').addEventListener('submit', function (event) {
@@ -100,12 +105,7 @@
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-          role
-        })
+        body: JSON.stringify({ name, email, password, role })
       })
         .then(response => response.json())
         .then(data => {
@@ -131,9 +131,7 @@
         if (result.isConfirmed) {
           fetch(`/user/${userId}`, {
             method: 'DELETE',
-            headers: {
-              'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
           })
             .then(response => response.json())
             .then(data => {
@@ -205,6 +203,19 @@
         }
       });
     }
+
+    // Search Functionality
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#userTable tbody tr');
+      
+      rows.forEach(row => {
+        // Menggabungkan semua kolom teks pada baris
+        const rowText = row.textContent.toLowerCase();
+        // Tampilkan baris jika terdapat teks yang cocok, sebaliknya sembunyikan
+        row.style.display = rowText.indexOf(filter) > -1 ? '' : 'none';
+      });
+    });
   </script>
 </body>
 

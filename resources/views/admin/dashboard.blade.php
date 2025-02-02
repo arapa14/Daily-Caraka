@@ -38,7 +38,7 @@
             <h2 class="text-2xl font-bold text-gray-700 mb-6">Admin Menu</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <!-- Manage Users -->
-                <a href="{{route('user')}}" class="flex flex-col items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
+                <a href="{{route('user.index')}}" class="flex flex-col items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
                     <i class="fas fa-users text-4xl mb-2"></i>
                     <span class="text-lg font-semibold">Manage Users</span>
                 </a>
