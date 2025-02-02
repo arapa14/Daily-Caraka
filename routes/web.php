@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,11 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
+    // CRUD user
     Route::resource('/user', UserController::class);
+
+    // CRUD location
+    Route::resource('/location', LocationController::class);
 });
 
 // Rute untuk Reviewer

@@ -44,7 +44,7 @@
                 </a>
     
                 <!-- Manage Locations -->
-                <a href="#" class="flex flex-col items-center justify-center bg-green-500 hover:bg-green-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
+                <a href="{{route('location.index')}}" class="flex flex-col items-center justify-center bg-green-500 hover:bg-green-600 text-white py-6 px-8 rounded-xl shadow-lg transition duration-300">
                     <i class="fas fa-map-marker-alt text-4xl mb-2"></i>
                     <span class="text-lg font-semibold">Manage Locations</span>
                 </a>
