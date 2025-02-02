@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -24,10 +25,8 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
     Route::get('/admin', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
-    
-    Route::get('/iniAdmin', function () {
-        return view('welcome');
-    });
+
+    Route::resource('/user', UserController::class);
 });
 
 // Rute untuk Reviewer
