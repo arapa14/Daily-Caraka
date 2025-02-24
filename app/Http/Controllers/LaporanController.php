@@ -174,7 +174,7 @@ class LaporanController extends Controller
 
         // Validasi input dari form
         $request->validate([
-            'images'      => 'required|file|mimes:jpg,png|max:4096',
+            'images'      => 'required|file|mimes:jpg,png',
             'description' => 'required|string|max:255',
             'location'    => 'required|string|not_in:Pilih lokasi',
             'status'      => 'required|string|in:hadir,izin,sakit',

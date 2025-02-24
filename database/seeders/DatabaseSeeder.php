@@ -130,5 +130,6 @@ class DatabaseSeeder extends Seeder
         foreach ($users as $user) {
             DB::table('users')->insert($user);
         }
+
     }
 }

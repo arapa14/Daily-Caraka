@@ -31,7 +31,7 @@
     <h2 class="text-2xl font-bold text-gray-700 mb-6 text-center">Settings Management</h2>
     
     <!-- Form Settings -->
-    <form id="updateSettingForm" action="{{ route('setting.update') }}" method="POST">
+    <form id="updateSettingForm" action="{{ route('setting.update') }}" method="POST" enctype="multipart/form-data">
       @csrf
 
       <!-- Pengaturan Utama -->
@@ -97,6 +97,26 @@
         </div>
       </div>
 
+      <!-- Pengaturan Sistem -->
+      <div class="mb-8 p-4 border rounded-lg bg-gray-50">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <i class="fas fa-cog"></i> Pengaturan Sistem
+        </h3>
+        <div class="mb-4">
+          <label for="nama_sistem" class="block text-gray-700 font-semibold mb-1">Nama Sistem:</label>
+          <input type="text" id="nama_sistem" name="nama_sistem" value="{{ $settings['nama_sistem'] ?? '' }}" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label for="logo_sistem" class="block text-gray-700 font-semibold mb-1">Logo Sistem:</label>
+          <input type="file" id="logo_sistem" name="logo_sistem" accept="image/*" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          @if(isset($settings['logo_sistem']) && $settings['logo_sistem'])
+            <div class="mt-2">
+              <img src="{{ Storage::url($settings['logo_sistem']) }}" alt="Logo Sistem" class="h-20">
+            </div>
+          @endif
+        </div>
+      </div>
+
       <!-- Tombol Submit -->
       <div class="text-center">
         <button type="submit" class="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-md shadow-md transition duration-300">
@@ -141,23 +161,14 @@
         if (result.isConfirmed) {
           const form = event.target;
           const formData = new FormData(form);
-          const data = {};
-
-          // Daftar field yang harus berupa integer
-          const intFields = ['pagi_start', 'pagi_end', 'siang_start', 'siang_end', 'sore_start', 'sore_end'];
-
-          formData.forEach((value, key) => {
-            data[key] = intFields.includes(key) ? parseInt(value) : value;
-          });
 
           fetch("{{ route('setting.update') }}", {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'Accept': 'application/json',
               'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
-            body: JSON.stringify(data)
+            body: formData
           })
           .then(async response => {
             if (!response.ok) {

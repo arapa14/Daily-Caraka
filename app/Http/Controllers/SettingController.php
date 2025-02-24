@@ -28,15 +28,29 @@ class SettingController extends Controller
     {
         $validated = $request->validate([
             'enable_time_restriction' => 'required|in:0,1',
-            'pagi_start'              => 'required|integer|min:0|max:23',
-            'pagi_end'                => 'required|integer|min:0|max:23',
-            'siang_start'             => 'required|integer|min:0|max:23',
-            'siang_end'               => 'required|integer|min:0|max:23',
-            'sore_start'              => 'required|integer|min:0|max:23',
-            'sore_end'                => 'required|integer|min:0|max:23',
+            'pagi_start'              => 'required|min:0|max:23',
+            'pagi_end'                => 'required|min:0|max:23',
+            'siang_start'             => 'required|min:0|max:23',
+            'siang_end'               => 'required|min:0|max:23',
+            'sore_start'              => 'required|min:0|max:23',
+            'sore_end'                => 'required|min:0|max:23',
+            'nama_sistem'             => 'required|string|max:255',
+            'logo_sistem'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $currentSettings = Setting::all()->pluck('value', 'key')->toArray();
+        
+        // Proses upload file untuk logo_sistem jika ada
+        if ($request->hasFile('logo_sistem')) {
+            $file = $request->file('logo_sistem');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('public/', $filename);
+            $validated['logo_sistem'] = $filePath;
+        } else {
+            // Jika tidak ada file baru, hapus key logo_sistem dari validated untuk menghindari update kosong
+            unset($validated['logo_sistem']);
+        }
+
         $fields = [
             'enable_time_restriction',
             'pagi_start',
@@ -44,7 +58,9 @@ class SettingController extends Controller
             'siang_start',
             'siang_end',
             'sore_start',
-            'sore_end'
+            'sore_end',
+            'nama_sistem',
+            'logo_sistem',
         ];
 
         $changes = [];
